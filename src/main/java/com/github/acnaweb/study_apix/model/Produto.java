@@ -1,4 +1,4 @@
-package com.github.acnaweb.study_apix;
+package com.github.acnaweb.study_apix.model;
 
 public class Produto {
     private Long id;
