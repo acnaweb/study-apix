@@ -1,7 +1,14 @@
 package com.github.acnaweb.study_apix.model;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 
+@Entity
 public class Produto {
+    @Id
+    @GeneratedValue
     private Long id;
+    
     private String nome;
     
     public Long getId() {
