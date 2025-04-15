@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.acnaweb.study_apix.dto.ProdutoRequestCreate;
+import com.github.acnaweb.study_apix.dto.ProdutoRequestUpdate;
+import com.github.acnaweb.study_apix.dto.ProdutoResponse;
 import com.github.acnaweb.study_apix.model.Produto;
 import com.github.acnaweb.study_apix.service.ProdutoService;
 
@@ -26,6 +28,8 @@ public class ControllerProduto {
     @Autowired
     private ProdutoService produtoService;
 
+
+    
     @PostMapping
     public ResponseEntity<Produto> 
                 create(@RequestBody ProdutoRequestCreate dto) {
@@ -35,9 +39,19 @@ public class ControllerProduto {
         return ResponseEntity.status(201).body(produto);
     }
 
-    @PutMapping
-    public ResponseEntity<String> update() {
-        return ResponseEntity.status(200).body("Produto atualizado");
+    @PutMapping("{id}")
+    public ResponseEntity<ProdutoResponse> update(
+				@PathVariable Long id, 
+				@RequestBody ProdutoRequestUpdate dto) {
+               
+        return produtoService.update(id, dto)
+                    .map(produto -> {
+                        ProdutoResponse response = new ProdutoResponse();
+                        response.setId(produto.getId());
+                        response.setNome(produto.getNome());
+                        return ResponseEntity.status(200).body(response);
+                    })                  
+                    .orElse(ResponseEntity.notFound().build());        
     }
 
     @GetMapping
