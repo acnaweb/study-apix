@@ -1,8 +1,7 @@
 package com.github.acnaweb.study_apix.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.acnaweb.study_apix.dto.ProdutoRequestCreate;
 import com.github.acnaweb.study_apix.dto.ProdutoRequestUpdate;
 import com.github.acnaweb.study_apix.dto.ProdutoResponse;
-import com.github.acnaweb.study_apix.model.Produto;
 import com.github.acnaweb.study_apix.service.ProdutoService;
 
 @RestController
@@ -31,12 +29,12 @@ public class ControllerProduto {
 
     
     @PostMapping
-    public ResponseEntity<Produto> 
+    public ResponseEntity<ProdutoResponse> 
                 create(@RequestBody ProdutoRequestCreate dto) {
 
-        Produto produto = produtoService.save(dto);
-
-        return ResponseEntity.status(201).body(produto);
+        return ResponseEntity.status(201).body(
+                new ProdutoResponse().toDto(produtoService.save(dto))
+            );
     }
 
     @PutMapping("{id}")
@@ -45,25 +43,23 @@ public class ControllerProduto {
 				@RequestBody ProdutoRequestUpdate dto) {
                
         return produtoService.update(id, dto)
-                    .map(produto -> {
-                        ProdutoResponse response = new ProdutoResponse();
-                        response.setId(produto.getId());
-                        response.setNome(produto.getNome());
-                        return ResponseEntity.status(200).body(response);
-                    })                  
+                    .map(produto -> ResponseEntity.ok(new ProdutoResponse().toDto(produto)))                  
                     .orElse(ResponseEntity.notFound().build());        
     }
 
     @GetMapping
-    public ResponseEntity<List<Produto>> findAll() {
-        List<Produto> produtos = produtoService.findAll();        
-        return ResponseEntity.status(200).body(produtos);
+    public ResponseEntity<List<ProdutoResponse>> findAll() {
+        return ResponseEntity.ok(produtoService
+            .findAll()
+            .stream()
+            .map(produto -> new ProdutoResponse().toDto(produto))
+            .collect(Collectors.toList()));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Produto> findById(@PathVariable Long id) {         
+    public ResponseEntity<ProdutoResponse> findById(@PathVariable Long id) {         
         return produtoService.findById(id)
-            .map(p -> ResponseEntity.ok(p))
+            .map(produto -> ResponseEntity.ok(new ProdutoResponse().toDto(produto)))
             .orElse(ResponseEntity.notFound().build());        
     }
     
